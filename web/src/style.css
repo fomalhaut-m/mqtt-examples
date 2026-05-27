@@ -1,0 +1,234 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.container {
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #409eff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #66b1ff;
+}
+
+.btn-success {
+  background-color: #67c23a;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #85ce61;
+}
+
+.btn-danger {
+  background-color: #f56c6c;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #f78989;
+}
+
+.btn-warning {
+  background-color: #e6a23c;
+  color: white;
+}
+
+.btn-warning:hover {
+  background-color: #eebe7a;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #409eff;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.status-online {
+  color: #67c23a;
+}
+
+.status-offline {
+  color: #f56c6c;
+}
+
+.status-pending {
+  color: #e6a23c;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.badge-success {
+  background-color: #e8f5e9;
+  color: #67c23a;
+}
+
+.badge-danger {
+  background-color: #fef0f0;
+  color: #f56c6c;
+}
+
+.badge-warning {
+  background-color: #fdf6ec;
+  color: #e6a23c;
+}
+
+.flex {
+  display: flex;
+  gap: 10px;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.text-sm {
+  font-size: 14px;
+}
+
+.text-muted {
+  color: #999;
+}

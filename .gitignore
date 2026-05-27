@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MQTT / Docker
+data/
+*.log
+
+# Certificates - 安全敏感文件
+certs/*.pem
+certs/*.crt
+certs/*.key
+certs/*.pfx
+certs/pwfile
+
+# MQTT Broker Data
+mqtt-example/data/**
+
+# Maven
+server/target/
+server/*.jar
+
+# Node (if any)
+node_modules/
+package-lock.json
+npm-debug.log
+
+# Logs
+*.log
+logs/
