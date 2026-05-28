@@ -8,7 +8,6 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import top.vexruna.simulator.collector.DeviceDataCollector;
 
 /**
  * MQTT 消息监听配置
@@ -41,10 +40,15 @@ public class MqttMessageListener {
             String payload = message.getPayload().toString();
 
             log.debug("[MQTT] 收到消息 - Topic: {}, QoS: {}", topic, qos);
-            
-            // 调用数据采集器处理
-            deviceDataCollector.processDeviceData(topic, payload, qos != null ? qos : 0);
-            
+
+            if (topic != null && topic.startsWith("system/")) {
+                deviceDataCollector.processSystemMetrics(topic, payload, qos != null ? qos : 0);
+            } else if (topic != null && topic.startsWith("lan/")) {
+                deviceDataCollector.processLanScan(topic, payload, qos != null ? qos : 0);
+            } else {
+                deviceDataCollector.processDeviceData(topic, payload, qos != null ? qos : 0);
+            }
+
         } catch (Exception e) {
             log.error("[MQTT] 消息处理失败 - Error: {}", e.getMessage(), e);
         }

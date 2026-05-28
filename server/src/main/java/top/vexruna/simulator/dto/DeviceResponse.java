@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class DeviceResponse {
 
+    private Long id;
     private String deviceId;
     private String deviceName;
     private String deviceType;

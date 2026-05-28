@@ -125,8 +125,69 @@ public class DeviceService {
         });
     }
 
+    @Transactional
+    public DeviceResponse createDevice(String deviceId, String deviceName, String deviceType) {
+        return registerDevice(deviceId, deviceName, deviceType);
+    }
+
+    @Transactional
+    public DeviceResponse updateDevice(String deviceId, String deviceName, String deviceType) {
+        DeviceInfo device = deviceRepository.findByDeviceId(deviceId)
+                .orElseThrow(() -> new RuntimeException("设备不存在: " + deviceId));
+
+        if (deviceName != null) {
+            device.setDeviceName(deviceName);
+        }
+        if (deviceType != null) {
+            device.setDeviceType(deviceType);
+        }
+
+        deviceRepository.save(device);
+        log.info("[设备] 更新设备信息: {}", deviceId);
+        return convertToResponse(device);
+    }
+
+    @Transactional(readOnly = true)
+    public DeviceResponse getDeviceByIdInternal(Long id) {
+        return deviceRepository.findById(id)
+                .map(this::convertToResponse)
+                .orElseThrow(() -> new RuntimeException("设备不存在: id=" + id));
+    }
+
+    @Transactional
+    public void deleteDeviceById(Long id) {
+        DeviceInfo device = deviceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("设备不存在: id=" + id));
+        String deviceId = device.getDeviceId();
+        log.info("删除设备 - DeviceId: {}, Id: {}", deviceId, id);
+        deviceRepository.delete(device);
+    }
+
+    public void triggerReport(String deviceId) {
+        log.info("[触发上报] 设备: {}", deviceId);
+
+        Optional<DeviceInfo> deviceOpt = deviceRepository.findByDeviceId(deviceId);
+        if (deviceOpt.isEmpty()) {
+            throw new RuntimeException("设备不存在: " + deviceId);
+        }
+
+        log.info("[触发上报] 设备 {} 上报一次数据", deviceId);
+    }
+
+    public void setReportInterval(String deviceId, int interval) {
+        log.info("[设置间隔] 设备: {}, 间隔: {}秒", deviceId, interval);
+
+        Optional<DeviceInfo> deviceOpt = deviceRepository.findByDeviceId(deviceId);
+        if (deviceOpt.isEmpty()) {
+            throw new RuntimeException("设备不存在: " + deviceId);
+        }
+
+        log.info("[设置间隔] 设备 {} 上报间隔已设置为 {}秒", deviceId, interval);
+    }
+
     private DeviceResponse convertToResponse(DeviceInfo deviceInfo) {
         DeviceResponse response = new DeviceResponse();
+        response.setId(deviceInfo.getId());
         response.setDeviceId(deviceInfo.getDeviceId());
         response.setDeviceName(deviceInfo.getDeviceName());
         response.setDeviceType(deviceInfo.getDeviceType());

@@ -1,4 +1,4 @@
-package top.vexruna.simulator.collector;
+package top.vexruna.simulator.mqtt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -46,21 +46,37 @@ public class DeviceDataCollector {
             latestDataCache.put(effectiveDeviceId, deviceData);
             updateStatistics(effectiveDeviceId);
 
-            // 注册或更新设备信息（H2）
             if (deviceId != null) {
                 deviceService.registerOrUpdateDevice(deviceId);
             }
 
-            // 存储时序数据（ClickHouse）
             clickHouseDataService.saveDeviceData(deviceData);
-
-            // 推送 SSE 实时通知
             sseService.pushDeviceData(deviceData);
             log.info("[采集] 处理数据 - {} 温度:{} 湿度:{}",
                     effectiveDeviceId, deviceData.getTemperature(), deviceData.getHumidity());
 
         } catch (Exception e) {
             log.error("[采集] 处理失败 - Topic: {} - Error: {}", topic, e.getMessage());
+        }
+    }
+
+    public void processSystemMetrics(String topic, String payload, int qos) {
+        try {
+            Object systemData = objectMapper.readValue(payload, Object.class);
+            sseService.pushSystemMetrics(systemData);
+            log.debug("[系统] 收到系统指标 - Topic: {}", topic);
+        } catch (Exception e) {
+            log.error("[系统] 处理失败 - Topic: {} - Error: {}", topic, e.getMessage());
+        }
+    }
+
+    public void processLanScan(String topic, String payload, int qos) {
+        try {
+            Object lanData = objectMapper.readValue(payload, Object.class);
+            sseService.pushLanScan(lanData);
+            log.info("[LAN] 收到局域网扫描数据 - Topic: {}", topic);
+        } catch (Exception e) {
+            log.error("[LAN] 处理失败 - Topic: {} - Error: {}", topic, e.getMessage());
         }
     }
 

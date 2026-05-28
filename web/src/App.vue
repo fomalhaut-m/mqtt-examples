@@ -3,27 +3,38 @@
     <header class="header">
       <h1>MQTT 多设备模拟控制台</h1>
       <nav class="nav">
-        <button 
+        <button
           :class="['nav-item', { active: activeModule === 'control' }]"
           @click="activeModule = 'control'"
         >
           设备控制
         </button>
-        <button 
+        <button
           :class="['nav-item', { active: activeModule === 'monitor' }]"
           @click="activeModule = 'monitor'"
         >
           实时监控
+        </button>
+        <button
+          :class="['nav-item', { active: activeModule === 'system' }]"
+          @click="activeModule = 'system'"
+        >
+          本机监控
+        </button>
+        <button
+          :class="['nav-item', { active: activeModule === 'lan' }]"
+          @click="activeModule = 'lan'"
+        >
+          局域网
         </button>
       </nav>
     </header>
 
     <main class="main">
       <DeviceControl v-if="activeModule === 'control'" />
-      <div v-else class="card">
-        <h2>实时数据监控中心</h2>
-        <p class="text-muted">实时数据展示模块开发中...</p>
-      </div>
+      <RealTimeMonitor v-else-if="activeModule === 'monitor'" />
+      <SystemMonitor v-else-if="activeModule === 'system'" />
+      <LanMonitor v-else />
     </main>
   </div>
 </template>
@@ -31,6 +42,9 @@
 <script setup>
 import { ref } from 'vue'
 import DeviceControl from './components/DeviceControl/index.vue'
+import RealTimeMonitor from './components/DataMonitor/index.vue'
+import SystemMonitor from './components/SystemMonitor/index.vue'
+import LanMonitor from './components/LanMonitor/index.vue'
 
 const activeModule = ref('control')
 </script>

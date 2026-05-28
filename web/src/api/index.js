@@ -28,13 +28,22 @@ export const deviceApi = {
 }
 
 export const dataApi = {
-  getDeviceData: (deviceId) => api.get(`/devices/${deviceId}/data`),
   getLatest: () => api.get('/data/latest'),
+  getLatestByDevice: (deviceId) => api.get(`/data/latest/${deviceId}`),
+  getHistory: (deviceId, params) => api.get(`/data/history/${deviceId}`, { params }),
   getStatistics: () => api.get('/data/statistics')
 }
 
 export const alertApi = {
   getAll: () => api.get('/alerts'),
+  getStatus: () => api.get('/alerts/status'),
   toggle: () => api.post('/alerts/toggle'),
   manual: (message) => api.post('/alerts/manual', { message })
+}
+
+export const sseApi = {
+  getSseUrl: () => '/sse/data',
+  getSseStatus: () => axios.get('/sse/status').then(r => r.data),
+  getSystemSnapshot: () => axios.get('/sse/system/snapshot').then(r => r.data),
+  getLanSnapshot: () => axios.get('/sse/lan/snapshot').then(r => r.data)
 }

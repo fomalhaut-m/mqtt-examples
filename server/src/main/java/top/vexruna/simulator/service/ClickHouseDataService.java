@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import top.vexruna.simulator.dto.DeviceData;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -121,5 +125,117 @@ public class ClickHouseDataService {
         }
 
         return null;
+    }
+
+    public List<DeviceData> getHistoryData(String deviceId, Long startTime, Long endTime, int limit) {
+        List<DeviceData> result = new ArrayList<>();
+        if (!initialized || dataSource == null) {
+            return result;
+        }
+
+        String sql = """
+            SELECT * FROM device_data
+            WHERE device_id = ?
+            AND timestamp >= ?
+            AND timestamp <= ?
+            ORDER BY timestamp DESC
+            LIMIT ?
+            """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, deviceId);
+            pstmt.setTimestamp(2, new Timestamp(startTime != null ? startTime : 0L));
+            pstmt.setTimestamp(3, new Timestamp(endTime != null ? endTime : System.currentTimeMillis()));
+            pstmt.setInt(4, limit > 0 ? limit : 100);
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                result.add(mapRowToDeviceData(rs));
+            }
+        } catch (SQLException e) {
+            log.error("[ClickHouse] 查询历史数据失败: {}", e.getMessage());
+        }
+        return result;
+    }
+
+    public List<DeviceData> getLatestAllDevicesData() {
+        List<DeviceData> result = new ArrayList<>();
+        if (!initialized || dataSource == null) {
+            return result;
+        }
+
+        String sql = """
+            SELECT d.* FROM device_data d
+            INNER JOIN (
+                SELECT device_id, MAX(timestamp) AS max_ts
+                FROM device_data
+                GROUP BY device_id
+            ) latest ON d.device_id = latest.device_id AND d.timestamp = latest.max_ts
+            ORDER BY d.device_id
+            """;
+
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                result.add(mapRowToDeviceData(rs));
+            }
+        } catch (SQLException e) {
+            log.error("[ClickHouse] 查询所有设备最新数据失败: {}", e.getMessage());
+        }
+        return result;
+    }
+
+    public Map<String, Object> getStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+        if (!initialized || dataSource == null) {
+            stats.put("totalCount", 0L);
+            stats.put("onlineDevices", 0L);
+            stats.put("dataRate", 0.0);
+            return stats;
+        }
+
+        String countSql = "SELECT count(*) AS cnt FROM device_data";
+        String deviceCountSql = "SELECT count(DISTINCT device_id) AS cnt FROM device_data WHERE timestamp >= ?";
+        String rateSql = "SELECT count(*) AS cnt FROM device_data WHERE timestamp >= ?";
+
+        try (Connection conn = dataSource.getConnection()) {
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(countSql)) {
+                stats.put("totalCount", rs.next() ? rs.getLong("cnt") : 0L);
+            }
+
+            long fiveMinutesAgo = System.currentTimeMillis() - 5 * 60 * 1000;
+            try (PreparedStatement pstmt = conn.prepareStatement(deviceCountSql)) {
+                pstmt.setTimestamp(1, new Timestamp(fiveMinutesAgo));
+                ResultSet rs = pstmt.executeQuery();
+                stats.put("onlineDevices", rs.next() ? rs.getLong("cnt") : 0L);
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(rateSql)) {
+                pstmt.setTimestamp(1, new Timestamp(System.currentTimeMillis() - 60_000));
+                ResultSet rs = pstmt.executeQuery();
+                long recentCount = rs.next() ? rs.getLong("cnt") : 0L;
+                stats.put("dataRate", Math.round(recentCount / 60.0 * 100.0) / 100.0);
+            }
+        } catch (SQLException e) {
+            log.error("[ClickHouse] 查询统计数据失败: {}", e.getMessage());
+        }
+        return stats;
+    }
+
+    private DeviceData mapRowToDeviceData(ResultSet rs) throws SQLException {
+        DeviceData data = new DeviceData();
+        data.setDeviceId(rs.getString("device_id"));
+        data.setTimestamp(rs.getTimestamp("timestamp").getTime());
+        data.setTemperature(rs.getDouble("temperature"));
+        data.setHumidity(rs.getDouble("humidity"));
+        data.setVoltage(rs.getDouble("voltage"));
+        data.setStatus(rs.getString("status"));
+        data.setError(rs.getString("error"));
+        return data;
     }
 }

@@ -51,10 +51,10 @@ public class MqttConfig {
     @Bean
     public MessageProducer inbound(MqttPahoClientFactory factory, MessageChannel mqttInputChannel) {
         MqttPahoMessageDrivenChannelAdapter adapter =
-                new MqttPahoMessageDrivenChannelAdapter(clientId, factory, topic);
+                new MqttPahoMessageDrivenChannelAdapter(clientId, factory, "device/+/reporter", "system/+/metrics", "lan/#");
         adapter.setQos(qos);
         adapter.setOutputChannel(mqttInputChannel);
-        log.info("MQTT适配器已配置 - Topic: {}, QoS: {}", topic, qos);
+        log.info("MQTT适配器已配置 - Topics: device/+/reporter, system/+/metrics, lan/#, QoS: {}", qos);
         return adapter;
     }
 }

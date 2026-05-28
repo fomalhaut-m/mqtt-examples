@@ -1,5 +1,6 @@
 package top.vexruna.simulator.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,13 @@ public class SseService {
     private final Map<String, ScheduledFuture<?>> heartbeatTasks = new ConcurrentHashMap<>();
     private static final Long DEFAULT_TIMEOUT = 30 * 60 * 1000L;
     private static final Long HEARTBEAT_INTERVAL = 30 * 1000L;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private volatile Object lastSystemMetrics;
+    private volatile Object lastLanScan;
+    private volatile long lastSystemMetricsTime;
+    private volatile long lastLanScanTime;
 
     @Autowired
     private TaskScheduler taskScheduler;
@@ -50,6 +58,8 @@ public class SseService {
             cleanup(clientId);
         });
 
+        emitters.put(clientId, emitter);
+
         try {
             emitter.send(SseEmitter.event()
                     .name("connected")
@@ -60,10 +70,34 @@ public class SseService {
             return emitter;
         }
 
-        emitters.put(clientId, emitter);
+        pushCachedSnapshots(clientId, emitter);
+
         startHeartbeat(clientId, emitter);
 
         return emitter;
+    }
+
+    private void pushCachedSnapshots(String clientId, SseEmitter emitter) {
+        if (lastSystemMetrics != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("systemMetrics")
+                        .data(lastSystemMetrics));
+                log.info("[SSE] 推送缓存的系统指标快照给: {}", clientId);
+            } catch (IOException e) {
+                log.warn("[SSE] 推送系统快照失败: {}", clientId);
+            }
+        }
+        if (lastLanScan != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("lanScan")
+                        .data(lastLanScan));
+                log.info("[SSE] 推送缓存的LAN扫描快照给: {}", clientId);
+            } catch (IOException e) {
+                log.warn("[SSE] 推送LAN快照失败: {}", clientId);
+            }
+        }
     }
 
     private void startHeartbeat(String clientId, SseEmitter emitter) {
@@ -137,6 +171,26 @@ public class SseService {
 
     public void pushAlert(Object alert) {
         broadcast("alert", alert);
+    }
+
+    public void pushSystemMetrics(Object systemData) {
+        this.lastSystemMetrics = systemData;
+        this.lastSystemMetricsTime = System.currentTimeMillis();
+        broadcast("systemMetrics", systemData);
+    }
+
+    public void pushLanScan(Object lanData) {
+        this.lastLanScan = lanData;
+        this.lastLanScanTime = System.currentTimeMillis();
+        broadcast("lanScan", lanData);
+    }
+
+    public Object getLastSystemMetrics() {
+        return lastSystemMetrics;
+    }
+
+    public Object getLastLanScan() {
+        return lastLanScan;
     }
 
     public int getActiveConnectionCount() {

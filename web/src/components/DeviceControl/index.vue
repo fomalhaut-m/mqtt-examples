@@ -41,8 +41,8 @@ const onlineCount = computed(() => devices.value.filter(d => d.status === 'onlin
 const offlineCount = computed(() => devices.value.filter(d => d.status === 'offline').length);
 const loadDevices = async () => {
  try {
- const data = await deviceApi.getAll();
- devices.value = data;
+ const res = await deviceApi.getAll();
+ devices.value = res.data || [];
  }
  catch (error) {
  console.error('Failed to load devices:', error);
