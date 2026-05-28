@@ -15,30 +15,30 @@ import java.util.Properties;
 @Service
 public class ClickHouseDataService {
 
-    @Value("${clickhouse.url}")
-    private String url;
-
-    @Value("${clickhouse.username}")
-    private String username;
-
-    @Value("${clickhouse.password}")
-    private String password;
+//    @Value("${clickhouse.url}")
+//    private String url;
+//
+//    @Value("${clickhouse.username}")
+//    private String username;
+//
+//    @Value("${clickhouse.password}")
+//    private String password;
 
     private ClickHouseDataSource dataSource;
 
     @PostConstruct
     public void init() {
-        try {
-            log.info("[ClickHouse] 初始化连接...");
-            Properties properties = new Properties();
-            properties.setProperty("user", username);
-            properties.setProperty("password", password);
-            dataSource = new ClickHouseDataSource(url, properties);
-            createTableIfNotExists();
-            log.info("[ClickHouse] 初始化完成");
-        } catch (Exception e) {
-            log.error("[ClickHouse] 初始化失败: {}", e.getMessage());
-        }
+//        try {
+//            log.info("[ClickHouse] 初始化连接...");
+//            Properties properties = new Properties();
+//            properties.setProperty("user", username);
+//            properties.setProperty("password", password);
+//            dataSource = new ClickHouseDataSource(url, properties);
+//            createTableIfNotExists();
+//            log.info("[ClickHouse] 初始化完成");
+//        } catch (Exception e) {
+//            log.error("[ClickHouse] 初始化失败: {}", e.getMessage());
+//        }
     }
 
     private void createTableIfNotExists() throws SQLException {

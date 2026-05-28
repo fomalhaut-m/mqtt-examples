@@ -11,16 +11,22 @@ import jakarta.annotation.PreDestroy;
 @Component
 public class MqttSubscriber {
 
-    @Value("${mqtt.broker.host}")
-    private String host;
+    @Value("${spring.mqtt.host}")
+    private String mqttHost;
 
-    @Value("${mqtt.broker.port}")
-    private int port;
+    @Value("${spring.mqtt.client-id}")
+    private String clientId;
 
-    @Value("${mqtt.broker.username}")
+    @Value("${spring.mqtt.topic}")
+    private String topic;
+
+    @Value("${spring.mqtt.qos}")
+    private int qos;
+
+    @Value("${spring.mqtt.username:}")
     private String username;
 
-    @Value("${mqtt.broker.password}")
+    @Value("${spring.mqtt.password:}")
     private String password;
 
     private MqttClient client;
@@ -28,7 +34,7 @@ public class MqttSubscriber {
     @PostConstruct
     public void subscribe() {
         try {
-            String url = "tcp://" + host + ":" + port;
+            String url = mqttHost ;
             client = new MqttClient(url, "subscriber", null);
 
             MqttConnectOptions options = new MqttConnectOptions();

@@ -56,11 +56,7 @@ public class SseService {
                     .data("{\"message\":\"SSE连接成功\",\"clientId\":\"" + clientId + "\"}"));
         } catch (IOException e) {
             log.error("[SSE] 握手消息发送失败，终止连接: {}", clientId);
-            try {
-                emitter.complete();
-            } catch (IOException ex) {
-                log.warn("[SSE] 关闭连接失败: {}", clientId);
-            }
+            emitter.complete();
             return emitter;
         }
 
