@@ -3,6 +3,7 @@ package top.vexruna.simulator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 /**
  * MQTT 设备模拟系统启动类
@@ -14,10 +15,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 4. 通过 SSE 实时推送数据
  */
 @Slf4j
-@SpringBootApplication
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class SimulatorApplication {
     public static void main(String[] args) {
-        log.info("[启动] MQTT 设备模拟系统正在启动...");
         SpringApplication.run(SimulatorApplication.class, args);
         log.info("[启动] MQTT 设备模拟系统启动成功");
     }

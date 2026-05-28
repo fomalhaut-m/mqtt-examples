@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.vexruna.simulator.dto.DeviceData;
+import top.vexruna.simulator.service.ClickHouseDataService;
 import top.vexruna.simulator.service.DeviceService;
 import top.vexruna.simulator.service.SseService;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DeviceDataCollector {
 
     private final DeviceService deviceService;
+    private final ClickHouseDataService clickHouseDataService;
     private final SseService sseService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -44,10 +46,15 @@ public class DeviceDataCollector {
             latestDataCache.put(effectiveDeviceId, deviceData);
             updateStatistics(effectiveDeviceId);
 
+            // 注册或更新设备信息（H2）
             if (deviceId != null) {
                 deviceService.registerOrUpdateDevice(deviceId);
             }
 
+            // 存储时序数据（ClickHouse）
+            clickHouseDataService.saveDeviceData(deviceData);
+
+            // 推送 SSE 实时通知
             sseService.pushDeviceData(deviceData);
             log.info("[采集] 处理数据 - {} 温度:{} 湿度:{}",
                     effectiveDeviceId, deviceData.getTemperature(), deviceData.getHumidity());

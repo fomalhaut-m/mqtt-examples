@@ -1,45 +1,33 @@
-package top.vexruna.simulator.mqtt;
+package top.vexruna.simulator.test_mqtt;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import top.vexruna.simulator.config.MqttConfig;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MqttSubscriber {
 
-    @Value("${spring.mqtt.host}")
-    private String mqttHost;
-
-    @Value("${spring.mqtt.client-id}")
-    private String clientId;
-
-    @Value("${spring.mqtt.topic}")
-    private String topic;
-
-    @Value("${spring.mqtt.qos}")
-    private int qos;
-
-    @Value("${spring.mqtt.username:}")
-    private String username;
-
-    @Value("${spring.mqtt.password:}")
-    private String password;
+    private final MqttConfig mqttConfig;
 
     private MqttClient client;
 
     @PostConstruct
     public void subscribe() {
         try {
-            String url = mqttHost ;
+            String url = mqttConfig.getHost();
             client = new MqttClient(url, "subscriber", null);
 
             MqttConnectOptions options = new MqttConnectOptions();
-            options.setUserName(username);
-            options.setPassword(password.toCharArray());
+            options.setUserName(mqttConfig.getUsername());
+            options.setPassword(mqttConfig.getPassword().toCharArray());
             options.setAutomaticReconnect(true);
 
             client.connect(options);

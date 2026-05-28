@@ -1,44 +1,36 @@
 package top.vexruna.simulator.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.clickhouse.jdbc.ClickHouseDataSource;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 import top.vexruna.simulator.dto.DeviceData;
 
 import java.sql.*;
-import java.util.Properties;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ClickHouseDataService {
 
-//    @Value("${clickhouse.url}")
-//    private String url;
-//
-//    @Value("${clickhouse.username}")
-//    private String username;
-//
-//    @Value("${clickhouse.password}")
-//    private String password;
+    @Qualifier("clickHouseDataSource")
+    private final ClickHouseDataSource dataSource;
 
-    private ClickHouseDataSource dataSource;
+    private volatile boolean initialized = false;
 
     @PostConstruct
     public void init() {
-//        try {
-//            log.info("[ClickHouse] 初始化连接...");
-//            Properties properties = new Properties();
-//            properties.setProperty("user", username);
-//            properties.setProperty("password", password);
-//            dataSource = new ClickHouseDataSource(url, properties);
-//            createTableIfNotExists();
-//            log.info("[ClickHouse] 初始化完成");
-//        } catch (Exception e) {
-//            log.error("[ClickHouse] 初始化失败: {}", e.getMessage());
-//        }
+        try {
+            log.info("[ClickHouse] 初始化连接...");
+            createTableIfNotExists();
+            initialized = true;
+            log.info("[ClickHouse] 初始化完成");
+        } catch (Exception e) {
+            log.warn("[ClickHouse] 初始化失败: {}，将使用降级模式", e.getMessage());
+            log.warn("[ClickHouse] 请确保 ClickHouse 服务已启动并检查配置");
+        }
     }
 
     private void createTableIfNotExists() throws SQLException {
@@ -66,8 +58,8 @@ public class ClickHouseDataService {
     }
 
     public void saveDeviceData(DeviceData data) {
-        if (dataSource == null) {
-            log.warn("[ClickHouse] 未初始化，跳过存储");
+        if (!initialized || dataSource == null) {
+            log.debug("[ClickHouse] 未初始化，跳过存储 - DeviceId: {}", data.getDeviceId());
             return;
         }
 

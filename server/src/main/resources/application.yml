@@ -12,12 +12,18 @@ spring:
   
   # H2 数据库配置（设备信息）
   datasource:
-    url: jdbc:h2:mem:device_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
+    h2:
+      url: jdbc:h2:mem:device_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      username: sa
+      password: 
+      driver-class-name: org.h2.Driver
+    clickhouse:
+      url: jdbc:clickhouse://localhost:8123/mqtt_db
+      username: default
+      password:
+      driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
   
-  # JPA 配置
+  # JPA 配置（仅用于 H2）
   jpa:
     hibernate:
       ddl-auto: update
@@ -38,39 +44,6 @@ server:
 logging:
   level:
     root: INFO
+    org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator: WARN
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-
-# Mica MQTT 配置
-mica:
-  mqtt:
-    # 客户端配置
-    client:
-      # 是否启用
-      enabled: true
-      # MQTT Broker 地址
-      host: localhost
-      # MQTT Broker 端口
-      port: 11883
-      # 用户名
-      username: mqtt_user
-      # 密码
-      password: mqtt_password
-      # 客户端ID
-      client-id: mica-mqtt-client-${random.value}
-      # 协议版本 (3.1, 3.1.1, 5.0)
-      protocol-version: 3.1.1
-      # 心跳间隔（秒）
-      keep-alive: 60
-      # 超时时间（秒）
-      timeout: 10
-      # 是否自动重连
-      reconnect: true
-      # 是否清理会话
-      clean-session: true
-      # 订阅的主题列表
-      topics:
-        - topic: device/+/reporter
-          qos: 1
-        - topic: device/+/status
-          qos: 0
