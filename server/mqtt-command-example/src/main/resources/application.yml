@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: mqtt-command
+
+  mqtt:
+    host: tcp://localhost:11883
+    client-id: mqtt-command-${random.value}
+    qos: 1
+    username: mqtt_user
+    password: mqtt_password
+    subscribe-topics: device/+/reporter,device/+/reply
+    command-topic: device/cmd/pc
+
+server:
+  port: 8083
+
+logging:
+  level:
+    root: INFO
+    top.vexruna.simulator: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

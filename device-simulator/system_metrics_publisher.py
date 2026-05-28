@@ -1,3 +1,17 @@
+"""
+系统指标采集上报器
+
+作用：采集本机的 CPU、内存、磁盘、网络等系统指标，通过 MQTT 上报给服务端
+为什么需要：服务端可以监控运行环境的健康状态，用于运维看板展示
+
+依赖库：
+  - psutil：跨平台系统信息采集库（核心依赖）
+  - requests：HTTP 请求库，用于查询公网 IP
+  - pythonping：ping 工具库，用于测量网关延迟
+
+数据流：
+  本脚本 → MQTT Broker（system/metrics）→ SpringBoot 服务端
+"""
 import json
 import time
 import sys

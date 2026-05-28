@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: mqtt-subscriber-advanced
+
+  mqtt:
+    host: tcp://localhost:11883
+    client-id: mqtt-advanced-${random.value}
+    topic: device/+/reporter
+    qos: 1
+    username: mqtt_user
+    password: mqtt_password
+    auto-reconnect: true
+    max-reconnect-delay: 30000
+    connection-timeout: 10
+    keep-alive-interval: 60
+
+  thread-pool:
+    core-size: 4
+    max-size: 16
+    queue-capacity: 256
+    keep-alive: 60
+    name-prefix: mqtt-worker-
+
+  ring-buffer:
+    capacity: 200
+
+server:
+  port: 8082
+
+logging:
+  level:
+    root: INFO
+    top.vexruna.simulator: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

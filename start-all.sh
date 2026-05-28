@@ -98,18 +98,18 @@ echo "启动 Vue 前端..."
 npm run dev &
 VITE_PID=$!
 
-cd "$ROOT_DIR/test-client"
+cd "$ROOT_DIR/device-simulator"
 
-echo "启动 mqtt_publisher.py ..."
-python3 mqtt_publisher.py &
+echo "启动 data_publisher.py ..."
+python3 data_publisher.py &
 PUB_PID=$!
 
-echo "启动 system_monitor.py ..."
-python3 system_monitor.py &
+echo "启动 system_metrics_publisher.py ..."
+python3 system_metrics_publisher.py &
 SYS_PID=$!
 
-echo "启动 lan_scanner.py ..."
-python3 lan_scanner.py &
+echo "启动 lan_scan_publisher.py ..."
+python3 lan_scan_publisher.py &
 LAN_PID=$!
 
 sleep 3
@@ -132,9 +132,9 @@ echo "=========================================="
 echo "  PIDs:"
 echo "    SpringBoot:    ${SPRING_PID:-已有进程}"
 echo "    Vite:          ${VITE_PID:-已有进程}"
-echo "    Publisher:     ${PUB_PID:-已有进程}"
-echo "    SystemMonitor: ${SYS_PID:-已有进程}"
-echo "    LanScanner:    ${LAN_PID:-已有进程}"
+echo "    DataPublisher:   ${PUB_PID:-已有进程}"
+echo "    SysMetricsPub:   ${SYS_PID:-已有进程}"
+echo "    LanScanPub:      ${LAN_PID:-已有进程}"
 echo "=========================================="
 echo ""
 echo "按 Ctrl+C 停止所有服务"

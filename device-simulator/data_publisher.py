@@ -1,3 +1,19 @@
+"""
+多设备数据模拟上报器
+
+作用：模拟 13 台 IoT 设备，定时向 MQTT Broker 上报温度、湿度等传感器数据
+为什么用 Python：Python 的 paho-mqtt 库简单易用，适合快速搭建模拟器
+为什么不用真实设备：开发阶段没有硬件，用软件模拟可以快速验证系统
+
+设备类型：
+  - 普通设备（10台）：正常上报温度/湿度
+  - 重启型设备（1台）：模拟设备重启事件
+  - 闪断型设备（1台）：模拟网络不稳定
+  - 故障型设备（1台）：模拟传感器故障，上报错误码
+
+数据流：
+  本脚本 → MQTT Broker（device/device-N/reporter）→ SpringBoot 服务端
+"""
 import random
 import json
 import time
